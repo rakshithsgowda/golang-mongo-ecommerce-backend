@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var UserCollection *mongo.Collection= database.UserData(database.Client,"Users")
@@ -26,10 +28,24 @@ var validate= validator.New()
 // password hash and helpers
 
 func HashPassword(password string) string {
-
+	bytes,err:=bcrypt.GenerateFromPassword([]byte(password),14)
+	if err!=nil{
+		log.Panic(err)
+	}
+	return string(bytes)
 }
-func VerifyPassword(userPassword string, givenPassword string) (bool, string) {
 
+func VerifyPassword(userPassword string, givenPassword string) (bool, string) {
+ err:= bcrypt.CompareHashAndPassword([]byte(givenPassword),[]byte(userPassword))
+
+	var valid bool= true
+	var msg string = ""
+	if err!=nil{
+		msg="login or password is incorrect"
+		valid=false
+	}
+
+	return valid,msg
 }
 
 // take in the input values from the params/bind the json.
@@ -96,7 +112,7 @@ func SignUp() gin.HandlerFunc {
 		user.User_ID= user.ID.Hex()
 
 		// tokens
-		token,refreshtoken,_:=generate.TokenGenerator(*user.Email,)
+		token,refreshtoken,_:=generate.TokenGenerator(*user.Email, *user.First_Name,*user.Last_Name,user.User_ID )
 
 		user.Token=&token
 		user.Refresh_Token=&refreshtoken
@@ -118,9 +134,43 @@ func SignUp() gin.HandlerFunc {
 }
 
 
-
+// User the db model and find the -"user" through -"email"
+// check if the password is valid
+// if the password matchs, refresh/generate all the token and sign in
 func Login() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var ctx,cancel=context.WithTimeout(context.Background(),100*time.Second)
+		defer cancel()
 
+		var user models.User
+		var founduser models.User
+
+		if err:=c.BindJSON(&user);err!=nil{
+			c.JSON(http.StatusBadRequest,gin.H{"error":err})
+			return
+		}
+		err := UserCollection.FindOne(ctx,bson.M{"email":user.Email}).Decode(&founduser)
+		defer cancel()
+		if err!=nil{
+			c.JSON(http.StatusInternalServerError,gin.H{"error":"login or password incorrect"})
+			return
+		}
+
+			//verify password  
+		PasswordIsValid,msg:= VerifyPassword(*user.Password,*founduser.Password)
+		defer cancel()
+		if !PasswordIsValid{
+			c.JSON(http.StatusInternalServerError,gin.H{"error":msg})
+			fmt.Println(msg)
+			return
+		}
+		
+		// add tokens to the logining in user
+		token,refreshToken,_:= generate.TokenGenerator(*founduser.Email,*founduser.First_Name,*founduser.Last_Name,founduser.User_ID)
+		defer cancel()
+		generate.UpdateAllTokens(token,refreshToken,founduser.User_ID)
+			c.JSON(http.StatusFound,founduser)
+	}
 }
 
 func ProductViewerAdmin() gin.HandlerFunc    {}
