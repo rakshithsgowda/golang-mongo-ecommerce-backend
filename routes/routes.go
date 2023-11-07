@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rakshithsgowda/e-commerce-golang-practise/controllers"
+	"github.com/rakshithsgowda/golang-mongo-ecommerce-backend/controllers"
 )
 
 func UserRoutes(incomingRoutes *gin.Engine) {

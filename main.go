@@ -5,10 +5,10 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rakshithsgowda/e-commerce-golang-practise/controllers"
-	"github.com/rakshithsgowda/e-commerce-golang-practise/database"
-	"github.com/rakshithsgowda/e-commerce-golang-practise/middlewares"
-	"github.com/rakshithsgowda/e-commerce-golang-practise/routes"
+	"github.com/rakshithsgowda/golang-mongo-ecommerce-backend/controllers"
+	"github.com/rakshithsgowda/golang-mongo-ecommerce-backend/database"
+	"github.com/rakshithsgowda/golang-mongo-ecommerce-backend/middlewares"
+	"github.com/rakshithsgowda/golang-mongo-ecommerce-backend/routes"
 )
 
 func main() {

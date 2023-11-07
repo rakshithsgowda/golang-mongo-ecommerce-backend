@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rakshithsgowda/e-commerce-golang-practise/database"
+	"github.com/rakshithsgowda/golang-mongo-ecommerce-backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )

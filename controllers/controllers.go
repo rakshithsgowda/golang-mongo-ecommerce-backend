@@ -7,11 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	generate "github.com/rakshithsgowda/golang-mongo-ecommerce-backend/tokens"
+
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator"
-	"github.com/rakshithsgowda/e-commerce-golang-practise/database"
-	"github.com/rakshithsgowda/e-commerce-golang-practise/models"
-	generate "github.com/rakshithsgowda/e-commerce-golang-practise/tokens"
+	"github.com/go-playground/validator/v10"
+	"github.com/rakshithsgowda/golang-mongo-ecommerce-backend/database"
+	"github.com/rakshithsgowda/golang-mongo-ecommerce-backend/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,6 +20,7 @@ import (
 )
 
 var UserCollection *mongo.Collection = database.UserData(database.Client, "Users")
+var ProductCollection *mongo.Collection = database.ProductData(database.Client, "Products")
 var validate = validator.New()
 
 // basic controllers for user
@@ -163,6 +165,7 @@ func Login() gin.HandlerFunc {
 		// add tokens to the logining in user
 		token, refreshToken, _ := generate.TokenGenerator(*founduser.Email, *founduser.First_Name, *founduser.Last_Name, founduser.User_ID)
 		defer cancel()
+
 		generate.UpdateAllTokens(token, refreshToken, founduser.User_ID)
 		c.JSON(http.StatusFound, founduser)
 	}
