@@ -25,7 +25,7 @@ func main() {
 	router.Use(middlewares.Authentication())
 
 	// direct homepage router actions
-	router.GET("/addtocart", app.AddTocart())
+	router.GET("/addtocart", app.AddToCart())
 	router.GET("/removeitem", app.RemoveItem())
 	router.GET("/cartcheckout", app.BuyFromCart())
 	router.GET("/instantbuy", app.InstantBuy())
@@ -36,6 +36,6 @@ func main() {
 	router.PUT("/edithomeaddress", controllers.EditHomeAddress())
 	router.PUT("/editworkaddress", controllers.EditWorkAddress())
 	router.GET("/deleteaddress", controllers.DeleteAddress())
-	router.GET("/listcart", controllers.GetItemsFromCart())
+	router.GET("/listcart", controllers.GetItemFromCart())
 	log.Fatal(router.Run(":" + port))
 }
