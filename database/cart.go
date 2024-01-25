@@ -108,10 +108,9 @@ func BuyItemFromCart(ctx context.Context ,userCollection *mongo.Collection, user
 	var total_price int32
 	for _, user_item := range getusercart {
 		price := user_item["total"]
-		total_price=price.(int32)
+		total_price = price.(int32)
 	}
-	ordercart.Price := int(total_price)
-
+	ordercart.Price = int(total_price)
 	filter:=bson.D{primitive.E{Key: "_id",Value: id}}
 	update:=bson.D{{Key: "$push",Value: bson.D{primitive.E{Key: "orders",Value: ordercart}}}}
 	_ , err= userCollection.UpdateMany(ctx, filter, update)
